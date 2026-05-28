@@ -43,7 +43,18 @@ impl WordBank {
     // ----------------------------------------------------------
     pub fn PickWord(&self, level: usize) -> Word {
         let mut candidates: Vec<Word> = Vec::new();
-        todo!("TODO 1-B: pick a random word filtered by level/length")
+
+        for (category, words) in &self.categories {
+            for word in words {
+                candidates.push(Word {
+                    text: word.clone(),
+                    category: category.clone(),
+                });
+            }
+        }
+
+        let index = rand::thread_rng().gen_range(0..candidates.len());
+        candidates[index].clone()
     }
 }
 
@@ -54,7 +65,11 @@ impl WordBank {
 //   Open the file at `path` and parse it into a WordBank.
 // ----------------------------------------------------------
 pub fn LoadWordBank(path: &str) -> Result<WordBank, io::Error> {
-    todo!("TODO 1-A: open and parse the word file")
+    let file = File::open(path)?;
+    let read = io::BuffReader::new(file).lines();
+
+    let categories = GroupCategories(read)?;
+    Ok(WordBank { categories });
 }
 
 fn GroupCategories<R: io::BufRead>(reader: io::Lines<R>)-> Result<HashMap<String, Vec<String>>, io::Error> {
