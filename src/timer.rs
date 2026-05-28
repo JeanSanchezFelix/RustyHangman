@@ -25,6 +25,7 @@ static STATE: OnceLock<Arc<Mutex<GameState>>> = OnceLock::new();
 // ----------------------------------------------------------
 pub fn RegisterSignalHandler(state: Arc<Mutex<GameState>>) {
     let _ = STATE.set(state);
+    
     unsafe {
         libc::signal(libc::SIGALRM, SigalrmHandler as libc::sighandler_t);
     }
@@ -38,9 +39,8 @@ pub fn RegisterSignalHandler(state: Arc<Mutex<GameState>>) {
 // Read about how to set a value of an AtomicBool in Rust to set TIMED_OUT to false.
 // ----------------------------------------------------------
 extern "C" fn SigalrmHandler(_sig: libc::c_int) {
-    if TIMED_OUT.load(Ordering::SeqCst) {
-        return;
-    }
+    if TIMED_OUT.load(Ordering::SeqCst) { return; }
+
     let Some(arc) = STATE.get() else { return; };
     let Ok(mut game) = arc.try_lock() else { return; };
 
@@ -51,6 +51,7 @@ extern "C" fn SigalrmHandler(_sig: libc::c_int) {
     if game.secs_remaining == 0 {
         game.round_over = true;
         TIMED_OUT.store(true, Ordering::SeqCst);
+        Stop();
     }
 }
 
@@ -75,8 +76,8 @@ pub fn TimeOutForLevel(level: usize) -> u64 {
 pub fn Start(_timeout_secs: u64) {
     TIMED_OUT.store(false, Ordering::SeqCst);
     let timer = libc::itimerval {
-        it_interval: libc::timeval { tv_sec: 1, tv_usec: 0 },
-        it_value: libc::timeval { tv_sec: 1, tv_usec: 0 },
+        it_interval: libc::timeval { tv_sec: 3, tv_usec: 0 },
+        it_value: libc::timeval { tv_sec: 3, tv_usec: 0 },
     };
 
     unsafe {
