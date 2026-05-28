@@ -46,10 +46,19 @@ impl WordBank {
 
         for (category, words) in &self.categories {
             for word in words {
-                candidates.push(Word {
-                    text: word.clone(),
-                    category: category.clone(),
-                });
+                let matches_level = match level {
+                    1 => word.len() <= 5,
+                    2 => word.len() >= 6 && word.len() <= 8,
+                    3 => word.len() >= 9,
+                    _ => true,
+                };
+
+                if matches_level {
+                    candidates.push(Word {
+                        text: word.clone(),
+                        category: category.clone(),
+                    });
+                }
             }
         }
 
