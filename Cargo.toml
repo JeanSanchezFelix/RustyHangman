@@ -1,0 +1,21 @@
+[package]
+name        = "hangman-rs"
+version     = "0.1.0"
+edition     = "2021"
+description = "OS Project — Hangman in Rust (Threads, Signals, File I/O)"
+
+[lib]
+name = "hangman_rs"
+path = "src/lib.rs"
+
+[[bin]]
+name = "hangman"
+path = "src/main.rs"
+
+[dependencies]
+libc     = "0.2"   # POSIX bindings: signal(), alarm(), SIGALRM
+rand     = "0.8"   # Random word selection
+pancurses = "0.17.0"
+
+[dev-dependencies]
+tempfile = "3"     # Temporary files for word-bank unit tests

@@ -1,0 +1,48 @@
+# ============================================================
+#  Hangman OS Project — Word Bank
+#  Format: [category] headers followed by one word per line.
+#  Lines starting with '#' are comments (your parser must skip them).
+# ============================================================
+
+[animals]
+cat
+fox
+owl
+bear
+wolf
+eagle
+shark
+zebra
+dolphin
+elephant
+alligator
+chimpanzee
+rhinoceros
+
+[technology]
+cpu
+ram
+pipe
+fork
+mutex
+kernel
+socket
+thread
+pointer
+process
+semaphore
+filesystem
+virtualization
+
+[countries]
+cuba
+peru
+chile
+japan
+spain
+brazil
+canada
+germany
+morocco
+argentina
+switzerland
