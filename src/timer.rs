@@ -25,9 +25,9 @@ static STATE: OnceLock<Arc<Mutex<GameState>>> = OnceLock::new();
 // ----------------------------------------------------------
 pub fn RegisterSignalHandler(state: Arc<Mutex<GameState>>) {
     let _ = STATE.set(state);
-    // println!("::::TASK 3-A:::: Registering SIGALRM handler...");
-    // Hint: unsafe {}
-    todo!("TODO 3-A: register SigalrmHandler for SIGALRM, store state Arc in STATE")
+    unsafe {
+        libc::signal(libc::SIGALRM, SigalrmHandler as libc::sighandler_t);
+    }
 }
 
 // ----------------------------------------------------------
@@ -38,11 +38,20 @@ pub fn RegisterSignalHandler(state: Arc<Mutex<GameState>>) {
 // Read about how to set a value of an AtomicBool in Rust to set TIMED_OUT to false.
 // ----------------------------------------------------------
 extern "C" fn SigalrmHandler(_sig: libc::c_int) {
-    // Hint: if TIMED_OUT.load(Ordering::SeqCst) {}
+    if TIMED_OUT.load(Ordering::SeqCst) {
+        return;
+    }
     let Some(arc) = STATE.get() else { return; };
     let Ok(mut game) = arc.try_lock() else { return; };
 
-    todo!("TODO 3-B: SIGALRM handler — decrement timer, set round_over")
+    if game.secs_remaining > 0 {
+        game.secs_remaining -= 1;
+    }
+
+    if game.secs_remaining == 0 {
+        game.round_over = true;
+        TIMED_OUT.store(true, Ordering::SeqCst);
+    }
 }
 
 // ----------------------------------------------------------
@@ -50,7 +59,12 @@ extern "C" fn SigalrmHandler(_sig: libc::c_int) {
 //   Returns the number of seconds allowed per word at each level:
 // ----------------------------------------------------------
 pub fn TimeOutForLevel(level: usize) -> u64 {
-    todo!("TODO 4-A: return seconds per level")
+    match level {
+        1 => 300,
+        2 => 180,
+        3 => 120,
+        _ => 300,
+    }
 }
 
 // ----------------------------------------------------------
@@ -60,7 +74,14 @@ pub fn TimeOutForLevel(level: usize) -> u64 {
 // ----------------------------------------------------------
 pub fn Start(_timeout_secs: u64) {
     TIMED_OUT.store(false, Ordering::SeqCst);
-    todo!("TODO 3-D: arm periodic SIGALRM via libc::setitimer(ITIMER_REAL, 1s/1s)")
+    let timer = libc::itimerval {
+        it_interval: libc::timeval { tv_sec: 1, tv_usec: 0 },
+        it_value: libc::timeval { tv_sec: 1, tv_usec: 0 },
+    };
+
+    unsafe {
+        libc::setitimer(libc::ITIMER_REAL, &timer, std::ptr::null_mut());
+    }
 }
 
 

@@ -46,14 +46,26 @@ impl WordBank {
 
         for (category, words) in &self.categories {
             for word in words {
+                let len = word.len();
                 let matches_level = match level {
-                    1 => word.len() <= 5,
-                    2 => word.len() >= 6 && word.len() <= 8,
-                    3 => word.len() >= 9,
+                    1 => len <= 5,
+                    2 => (6..=8).contains(&len),
+                    3 => len >= 9,
                     _ => true,
                 };
 
                 if matches_level {
+                    candidates.push(Word {
+                        text: word.clone(),
+                        category: category.clone(),
+                    });
+                }
+            }
+        }
+
+        if candidates.is_empty() {
+            for (category, words) in &self.categories {
+                for word in words {
                     candidates.push(Word {
                         text: word.clone(),
                         category: category.clone(),
@@ -75,10 +87,10 @@ impl WordBank {
 // ----------------------------------------------------------
 pub fn LoadWordBank(path: &str) -> Result<WordBank, io::Error> {
     let file = File::open(path)?;
-    let read = io::BuffReader::new(file).lines();
+    let read = io::BufReader::new(file).lines();
 
     let categories = GroupCategories(read)?;
-    Ok(WordBank { categories });
+    Ok(WordBank { categories })
 }
 
 fn GroupCategories<R: io::BufRead>(reader: io::Lines<R>)-> Result<HashMap<String, Vec<String>>, io::Error> {
