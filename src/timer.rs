@@ -76,8 +76,8 @@ pub fn TimeOutForLevel(level: usize) -> u64 {
 pub fn Start(_timeout_secs: u64) {
     TIMED_OUT.store(false, Ordering::SeqCst);
     let timer = libc::itimerval {
-        it_interval: libc::timeval { tv_sec: 3, tv_usec: 0 },
-        it_value:    libc::timeval { tv_sec: 3, tv_usec: 0 },
+        it_interval: libc::timeval { tv_sec: 1, tv_usec: 0 },
+        it_value:    libc::timeval { tv_sec: 1, tv_usec: 0 },
     };
 
     unsafe {
