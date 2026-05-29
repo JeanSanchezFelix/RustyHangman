@@ -62,9 +62,6 @@ impl GameState {
     //   Hint: use `AllLettersFound()` to check for win
     // ----------------------------------------------------------
     pub fn Guess(&mut self, letter: char) {
-        // Hint: if self.guessed.contains(&letter) {
-        //     return;
-        // }
 
         if self.round_over || self.guessed.contains(&letter) {
             return;
